@@ -20,6 +20,8 @@ export const api = {
       fetch(PEOPLE_URL, { method: 'GET', headers: { 'X-Auth-Token': getToken() } }).then(r => r.json()),
     add: (full_name: string, photo_data?: string) =>
       fetch(PEOPLE_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Auth-Token': getToken() }, body: JSON.stringify({ full_name, photo_data }) }).then(r => r.json()),
+    delete: (id: number) =>
+      fetch(PEOPLE_URL, { method: 'DELETE', headers: { 'Content-Type': 'application/json', 'X-Auth-Token': getToken() }, body: JSON.stringify({ id }) }).then(r => r.json()),
   },
   tables: {
     list: () =>

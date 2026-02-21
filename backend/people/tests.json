@@ -7,6 +7,15 @@
       "expectedStatus": 401,
       "expectedBody": {"error": "string"},
       "bodyMatcher": "partial"
+    },
+    {
+      "name": "Delete person without auth",
+      "method": "DELETE",
+      "path": "/",
+      "body": {"id": 999},
+      "expectedStatus": 401,
+      "expectedBody": {"error": "string"},
+      "bodyMatcher": "partial"
     }
   ]
 }

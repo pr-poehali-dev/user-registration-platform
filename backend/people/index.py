@@ -73,6 +73,37 @@ def handler(event: dict, context) -> dict:
             conn.commit()
             return {'statusCode': 200, 'headers': headers, 'body': json.dumps({'person': {'id': row[0], 'full_name': row[1], 'photo_url': row[2], 'created_at': str(row[3])}})}
 
+        elif method == 'DELETE':
+            body = json.loads(event.get('body') or '{}')
+            person_id = body.get('id')
+            if not person_id:
+                return {'statusCode': 400, 'headers': headers, 'body': json.dumps({'error': 'ID обязателен'})}
+
+            # Проверяем что человек принадлежит этому пользователю
+            cur.execute("SELECT id, photo_url FROM people WHERE id = %s AND user_id = %s", (person_id, user_id))
+            row = cur.fetchone()
+            if not row:
+                return {'statusCode': 404, 'headers': headers, 'body': json.dumps({'error': 'Не найден'})}
+
+            # Удаляем фото из S3 если есть
+            photo_url = row[1]
+            if photo_url:
+                try:
+                    s3 = boto3.client(
+                        's3',
+                        endpoint_url='https://bucket.poehali.dev',
+                        aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
+                        aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY']
+                    )
+                    key = photo_url.split('/bucket/')[-1]
+                    s3.delete_object(Bucket='files', Key=key)
+                except Exception:
+                    pass
+
+            cur.execute("DELETE FROM people WHERE id = %s AND user_id = %s", (person_id, user_id))
+            conn.commit()
+            return {'statusCode': 200, 'headers': headers, 'body': json.dumps({'ok': True})}
+
         else:
             return {'statusCode': 405, 'headers': headers, 'body': json.dumps({'error': 'Метод не поддерживается'})}
     finally:
