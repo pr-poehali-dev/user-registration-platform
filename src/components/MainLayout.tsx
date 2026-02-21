@@ -7,6 +7,7 @@ import ExcelEditor from '@/components/ExcelEditor';
 import Calculator from '@/components/Calculator';
 import Translator from '@/components/Translator';
 import ProfilePanel from '@/components/ProfilePanel';
+import FaceRecognitionPanel from '@/components/FaceRecognitionPanel';
 
 type View = 'home' | 'excel' | 'people' | 'profile';
 
@@ -18,6 +19,7 @@ interface Props {
 export default function MainLayout({ user, onLogout }: Props) {
   const [view, setView] = useState<View>('home');
   const [showAddPerson, setShowAddPerson] = useState(false);
+  const [showFaceRecognition, setShowFaceRecognition] = useState(false);
   const [refreshPeople, setRefreshPeople] = useState(0);
 
   const handlePersonAdded = () => {
@@ -66,40 +68,58 @@ export default function MainLayout({ user, onLogout }: Props) {
           <div className="flex flex-1 overflow-hidden">
             {/* Left sidebar — actions */}
             <aside className="w-56 border-r border-border flex flex-col p-4 gap-3 shrink-0">
-              <div className="text-xs text-muted-foreground font-medium uppercase tracking-widest mb-2">Действия</div>
+              <div className="text-xs text-muted-foreground font-medium uppercase tracking-widest mb-1">Действия</div>
+
               <button
                 onClick={() => setView('excel')}
-                className="flex-1 max-h-40 flex flex-col items-center justify-center gap-3 rounded-2xl border border-border bg-secondary hover:bg-muted hover:border-ring transition-all group"
+                className="flex-1 max-h-36 flex flex-col items-center justify-center gap-2 rounded-2xl border border-border bg-secondary hover:bg-muted hover:border-ring transition-all group"
               >
-                <div className="w-12 h-12 rounded-xl bg-foreground/10 flex items-center justify-center group-hover:bg-foreground/20 transition-colors">
-                  <Icon name="Table" size={24} className="text-foreground" />
+                <div className="w-10 h-10 rounded-xl bg-foreground/10 flex items-center justify-center group-hover:bg-foreground/20 transition-colors">
+                  <Icon name="Table" size={22} className="text-foreground" />
                 </div>
                 <span className="text-sm font-medium text-foreground">Создать</span>
                 <span className="text-xs text-muted-foreground">Excel-таблица</span>
               </button>
+
               <button
                 onClick={() => setShowAddPerson(true)}
-                className="flex-1 max-h-40 flex flex-col items-center justify-center gap-3 rounded-2xl border border-border bg-secondary hover:bg-muted hover:border-ring transition-all group"
+                className="flex-1 max-h-36 flex flex-col items-center justify-center gap-2 rounded-2xl border border-border bg-secondary hover:bg-muted hover:border-ring transition-all group"
               >
-                <div className="w-12 h-12 rounded-xl bg-foreground/10 flex items-center justify-center group-hover:bg-foreground/20 transition-colors">
-                  <Icon name="UserPlus" size={24} className="text-foreground" />
+                <div className="w-10 h-10 rounded-xl bg-foreground/10 flex items-center justify-center group-hover:bg-foreground/20 transition-colors">
+                  <Icon name="UserPlus" size={22} className="text-foreground" />
                 </div>
                 <span className="text-sm font-medium text-foreground">Добавить</span>
                 <span className="text-xs text-muted-foreground">Человека</span>
               </button>
-              <button
-                onClick={() => setView('people')}
-                className="flex items-center gap-2 px-3 py-2.5 rounded-xl border border-border bg-secondary hover:bg-muted hover:border-ring transition-all text-sm text-foreground"
-              >
-                <Icon name="Images" size={16} />
-                Общие фото
-              </button>
+
+              <div className="border-t border-border pt-2 space-y-1">
+                <button
+                  onClick={() => setView('people')}
+                  className="w-full flex items-center gap-2 px-3 py-2 rounded-xl border border-border bg-secondary hover:bg-muted hover:border-ring transition-all text-sm text-foreground"
+                >
+                  <Icon name="Images" size={15} />
+                  Общие фото
+                </button>
+
+                <button
+                  onClick={() => setShowFaceRecognition(v => !v)}
+                  className={`w-full flex items-center gap-2 px-3 py-2 rounded-xl border transition-all text-sm font-medium ${showFaceRecognition ? 'bg-accent/20 border-accent text-accent' : 'border-border bg-secondary hover:bg-muted hover:border-ring text-foreground'}`}
+                >
+                  <Icon name="ScanFace" size={15} />
+                  Определить людей
+                  {showFaceRecognition && (
+                    <span className="ml-auto w-2 h-2 rounded-full bg-accent shrink-0" />
+                  )}
+                </button>
+              </div>
+
               <div className="flex-1" />
+
               <button
                 onClick={onLogout}
-                className="flex items-center gap-2 px-3 py-2.5 rounded-xl hover:bg-destructive/10 hover:text-destructive transition-all text-sm text-muted-foreground"
+                className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-destructive/10 hover:text-destructive transition-all text-sm text-muted-foreground"
               >
-                <Icon name="LogOut" size={16} />
+                <Icon name="LogOut" size={15} />
                 Выйти
               </button>
             </aside>
@@ -120,13 +140,22 @@ export default function MainLayout({ user, onLogout }: Props) {
           <div className="flex-1 overflow-auto p-6 animate-fade-in">
             <div className="flex items-center justify-between mb-6">
               <h2 className="font-oswald text-2xl font-semibold">Общие фото</h2>
-              <button
-                onClick={() => setShowAddPerson(true)}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-foreground text-background text-sm font-medium hover:opacity-90 transition-opacity"
-              >
-                <Icon name="UserPlus" size={16} />
-                Добавить
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setShowFaceRecognition(v => !v)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-medium transition-all ${showFaceRecognition ? 'bg-accent/20 border-accent text-accent' : 'border-border hover:border-ring text-foreground'}`}
+                >
+                  <Icon name="ScanFace" size={16} />
+                  Определить
+                </button>
+                <button
+                  onClick={() => setShowAddPerson(true)}
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-foreground text-background text-sm font-medium hover:opacity-90 transition-opacity"
+                >
+                  <Icon name="UserPlus" size={16} />
+                  Добавить
+                </button>
+              </div>
             </div>
             <PeopleGallery refreshKey={refreshPeople} />
           </div>
@@ -145,8 +174,14 @@ export default function MainLayout({ user, onLogout }: Props) {
         )}
       </div>
 
+      {/* Modals & Floating panels */}
       {showAddPerson && (
         <AddPersonModal onClose={() => setShowAddPerson(false)} onAdded={handlePersonAdded} />
+      )}
+
+      {/* Face Recognition — floating, persists across tab changes */}
+      {showFaceRecognition && (
+        <FaceRecognitionPanel onClose={() => setShowFaceRecognition(false)} />
       )}
     </div>
   );
